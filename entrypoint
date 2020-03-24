@@ -1,12 +1,12 @@
 #!/bin/sh
 # A wrapper around the runner which automatically removes it when it finishes
 
+: ${GITHUB_RUNNER_TOKEN?Must provide GITHUB_RUNNER_TOKEN env variable.}
+: ${GITHUB_REPO_URL?Must provide GITHUB_REPO_URL env variable.}
+
 set -x
 
 set -eo pipefail
-
-: ${GITHUB_RUNNER_TOKEN?Must provide GITHUB_RUNNER_TOKEN env variable.}
-: ${GITHUB_REPO_URL?Must provide GITHUB_REPO_URL env variable.}
 
 exit_code=0
 (
