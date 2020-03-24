@@ -1,0 +1,68 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: action-runner-template
+
+parameters:
+  - name: APP_NAME
+    description: "Name of the application. It is recommended to use name of the Git Hub repository."
+    required: true
+  - name: REPO_URL
+    description: "Git Hub repository URL."
+    required: true
+  - name: RUNNER_TOKEN
+    description: "Action Runner token, see: https://help.github.com/en/actions/hosting-your-own-runners/adding-self-hosted-runners."
+    required: true
+
+objects:
+  - kind: ImageStream
+    apiVersion: image.openshift.io/v1
+    metadata:
+      name: ${APP_NAME}-actions-runner
+      labels:
+        app: ${APP_NAME}
+    spec:
+      lookupPolicy:
+        local: true
+
+  - kind: Secret
+    apiVersion: v1
+    metadata:
+      name: ${APP_NAME}-actions-runner
+      labels:
+        app: ${APP_NAME}
+    type: Opaque
+    stringData:
+      RUNNER_TOKEN: ${RUNNER_TOKEN}
+
+  - kind: DeploymentConfig
+    apiVersion: v1
+    metadata:
+      name: ${APP_NAME}-actions-runner
+      labels:
+        app: ${APP_NAME}
+    spec:
+      replicas: 1
+      triggers:
+        - type: ConfigChange
+      template:
+        metadata:
+          name: ${APP_NAME}-actions-runner
+          labels:
+            app: ${APP_NAME}
+        spec:
+          selector:
+            matchLabels:
+              app: ${APP_NAME}
+          containers:
+            - name: runner
+              image: actions-runner:latest
+              imagePullPolicy: Always
+              env:
+                - name: GITHUB_REPO_URL
+                  value: "${REPO_URL}"
+                - name: GITHUB_RUNNER_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      name: ${APP_NAME}-actions-runner
+                      key: RUNNER_TOKEN
