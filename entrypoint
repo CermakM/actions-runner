@@ -1,0 +1,31 @@
+#!/bin/sh
+# A wrapper around the runner which automatically removes it when it finishes
+
+set -x
+
+set -eo pipefail
+
+: ${GITHUB_RUNNER_TOKEN?Must provide GITHUB_RUNNER_TOKEN env variable.}
+: ${GITHUB_REPO_URL?Must provide GITHUB_REPO_URL env variable.}
+
+exit_code=0
+(
+    set -e;
+    ${APP_ROOT}/src/config.sh \
+        --replace \
+        --token ${GITHUB_RUNNER_TOKEN} \
+        --unattended \
+        --url ${GITHUB_REPO_URL}
+
+    ${APP_ROOT}/src/run.sh
+) || {
+    exit_code="$?"
+}
+
+# remove the configured runner
+${APP_ROOT}/src/config.sh remove \
+    --token ${GITHUB_RUNNER_TOKEN} \
+    --unattended \
+    --url ${GITHUB_REPO_URL}
+
+exit $exit_code
