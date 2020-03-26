@@ -1,12 +1,15 @@
 apiVersion: template.openshift.io/v1
 kind: Template
 metadata:
-  name: action-runner-template
+  name: actions-runner-template
 
 parameters:
   - name: APP_NAME
     description: "Name of the application. It is recommended to use name of the Git Hub repository."
     required: true
+  - name: IMAGE_NAME
+    description: "Name of the actions runner image."
+    value: "${APP_NAME}-actions-runner"
   - name: REPO_URL
     description: "Git Hub repository URL."
     required: true
@@ -18,7 +21,7 @@ objects:
   - kind: ImageStream
     apiVersion: image.openshift.io/v1
     metadata:
-      name: ${APP_NAME}-actions-runner
+      name: ${IMAGE_NAME}
       labels:
         app: ${APP_NAME}
     spec:
@@ -47,7 +50,7 @@ objects:
         - type: ConfigChange
       template:
         metadata:
-          name: ${APP_NAME}-actions-runner
+          name: actions-runner
           labels:
             app: ${APP_NAME}
         spec:
@@ -56,7 +59,7 @@ objects:
               app: ${APP_NAME}
           containers:
             - name: runner
-              image: actions-runner:latest
+              image: ${IMAGE_NAME}:latest
               imagePullPolicy: Always
               env:
                 - name: GITHUB_REPO_URL
