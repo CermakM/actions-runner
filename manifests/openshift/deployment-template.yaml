@@ -9,7 +9,11 @@ parameters:
     required: true
   - name: IMAGE_NAME
     description: "Name of the actions runner image."
-    value: "${APP_NAME}-actions-runner"
+    value: "quay.io/cermakm/openshift-actions-runner"
+  - name: IMAGE_TAG
+    description: "Tag of the actions runner image."
+    value: "latest"
+    required: false
   - name: REPO_URL
     description: "Git Hub repository URL."
     required: true
@@ -18,16 +22,6 @@ parameters:
     required: true
 
 objects:
-  - kind: ImageStream
-    apiVersion: image.openshift.io/v1
-    metadata:
-      name: ${IMAGE_NAME}
-      labels:
-        app: ${APP_NAME}
-    spec:
-      lookupPolicy:
-        local: true
-
   - kind: Secret
     apiVersion: v1
     metadata:
@@ -59,7 +53,7 @@ objects:
               app: ${APP_NAME}
           containers:
             - name: runner
-              image: ${IMAGE_NAME}:latest
+              image: ${IMAGE_NAME}:${IMAGE_TAG}
               imagePullPolicy: Always
               env:
                 - name: GITHUB_REPO_URL
