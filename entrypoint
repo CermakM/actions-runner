@@ -13,7 +13,7 @@ GITHUB_RUNNER_TOKEN=$(\
         -X POST \
         -H "Authorization: token $GITHUB_REPO_TOKEN" \
         "https://api.github.com/repos/${GITHUB_REPO}/actions/runners/registration-token" \
-    | jq -c '.token' \
+    | jq -r '.token' \
 )
 
 exit_code=0
