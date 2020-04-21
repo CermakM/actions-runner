@@ -4,8 +4,6 @@
 : ${GITHUB_REPO?Must provide GITHUB_REPO env variable.}
 : ${GITHUB_REPO_TOKEN?Must provide GITHUB_REPO_TOKEN env variable.}
 
-set -x
-
 set -eo pipefail
 
 GITHUB_RUNNER_TOKEN=$(\
